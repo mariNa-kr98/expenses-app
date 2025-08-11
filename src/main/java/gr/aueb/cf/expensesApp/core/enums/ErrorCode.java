@@ -1,0 +1,8 @@
+package gr.aueb.cf.expensesApp.core.enums;
+
+public enum ErrorCode {
+    ENTITY_ALREADY_EXISTS,
+    ENTITY_INVALID_ARGUMENT_EXCEPTION,
+    ENTITY_NOT_FOUND_EXCEPTION,
+    ENTITY_NOT_AUTHORIZED_EXCEPTION
+}

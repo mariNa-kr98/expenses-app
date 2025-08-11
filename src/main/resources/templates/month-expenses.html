@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Paginated Monthly Insertions List</title>
+</head>
+<body>
+<div th:replace="~{fragments/header :: headerFragment}"></div>
+
+<h1><span th:text="${currentMonth}"></span> Insertions List</h1>
+
+<div class="main-content">
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>UUID</th>
+            <th>Date Inserted</th>
+            <th>Date Modified</th>
+            <th>Category</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Iterate over the content of the current page -->
+        <tr th:each="insertion : ${insertionsPage.content}">
+            <td th:text="${insertion.id}"></td>
+            <td th:text="${insertion.uuid}"></td>
+            <td th:text="${insertion.createdAt}"></td>
+            <td th:text="${insertion.updatedAt}"></td>
+            <td th:text="${insertion.category}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="pagination-controls">
+        <!-- Link to first page (disabled if already on the first page) -->
+        <a th:if="${currentPage > 0}" th:href="@{/app/insertions(page=0, size=${insertionsPage.size})}">&laquo; First</a>
+        <span th:if="${currentPage == 0}" class="disabled">&laquo; First</span>
+
+        <!-- Link to previous page (disabled if already on the first page) -->
+        <a th:if="${currentPage > 0}" th:href="@{/app/teachers(page=${currentPage - 1}, size=${insertionsPage.size})}">&lsaquo; Prev</a>
+        <span th:if="${currentPage == 0}" class="disabled">&lsaquo; Prev</span>
+
+        <!-- Display current page / total pages -->
+        <span th:text="${currentPage + 1} + ' / ' + ${totalPages}"></span>
+
+        <!-- Link to next page (disabled if on the last page) -->
+        <a th:if="${currentPage + 1 < totalPages}" th:href="@{/app/insertions(page=${currentPage + 1}, size=${insertionsPage.size})}">Next &rsaquo;</a>
+        <span th:if="${currentPage + 1 == totalPages}" class="disabled">Next &rsaquo;</span>
+
+        <!-- Link to last page (disabled if already on the last page) -->
+        <a th:if="${currentPage + 1 < totalPages}" th:href="@{/app/insertions(page=${totalPages - 1}, size=${insertionsPage.size})}">Last &raquo;</a>
+        <span th:if="${currentPage + 1 == totalPages}" class="disabled">Last &raquo;</span>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footerFragment}"></div>
+</body>
+</html>
