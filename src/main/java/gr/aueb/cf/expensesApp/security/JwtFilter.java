@@ -1,6 +1,7 @@
 package gr.aueb.cf.expensesApp.security;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,6 +27,7 @@ public class JwtFilter extends OncePerRequestFilter {
         private static final Logger LOGGER = LoggerFactory.getLogger(JwtFilter.class);
         private final JwtService jwtService;
         private final UserDetailsService userDetailsService;
+        private  final AuthService authService;
 
         @Override
         protected void doFilterInternal(
@@ -43,6 +45,12 @@ public class JwtFilter extends OncePerRequestFilter {
                 return;
             }
             jwt = authHeader.substring(7);
+
+            String token = authService.extractTokenFromHeader(request);
+
+            if (authService.isTokenBlacklisted(token)) {
+                throw new JwtException("Token has been invalidated");
+            }
 
             try {
                 username = jwtService.extractSubject(jwt);

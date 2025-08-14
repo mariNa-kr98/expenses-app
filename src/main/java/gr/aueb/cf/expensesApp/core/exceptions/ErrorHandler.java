@@ -1,15 +1,13 @@
 package gr.aueb.cf.expensesApp.core.exceptions;
 
-import gr.aueb.cf.expensesApp.core.enums.ErrorCode;
 import gr.aueb.cf.expensesApp.dto.ResponseMessageDTO;
-import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,5 +34,18 @@ public class ErrorHandler{
         }
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
 
+    }
+
+    // Handle JSON parse errors (e.g., enum mismatch)
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<String> handleJsonParseError(HttpMessageNotReadableException ex) {
+        return new ResponseEntity<>("Invalid request format: " + ex.getMostSpecificCause().getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    // Handle unexpected errors (fallback)
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleGeneralException(Exception ex) {
+        ex.printStackTrace(); // for console visibility
+        return new ResponseEntity<>("Unexpected error: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

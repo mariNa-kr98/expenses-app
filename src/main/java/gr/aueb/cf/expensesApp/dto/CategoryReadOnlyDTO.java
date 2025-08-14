@@ -15,6 +15,7 @@ import java.util.List;
 public class CategoryReadOnlyDTO {
 
     private CategoryType categoryType;
-    private List<String> subcategories;
+    private String subcategory;
+//    private List<String> subcategories;
 
 }

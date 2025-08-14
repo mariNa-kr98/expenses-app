@@ -4,6 +4,7 @@ package gr.aueb.cf.expensesApp.service;
 import gr.aueb.cf.expensesApp.core.enums.CategoryType;
 import gr.aueb.cf.expensesApp.core.enums.ErrorCode;
 import gr.aueb.cf.expensesApp.core.exceptions.AppException;
+import gr.aueb.cf.expensesApp.dto.CategoryReadOnlyDTO;
 import gr.aueb.cf.expensesApp.dto.TransactionInsertDTO;
 import gr.aueb.cf.expensesApp.dto.TransactionReadOnlyDTO;
 import gr.aueb.cf.expensesApp.dto.TransactionUpdateDTO;
@@ -13,6 +14,8 @@ import gr.aueb.cf.expensesApp.model.Transaction;
 import gr.aueb.cf.expensesApp.repository.CategoryRepository;
 import gr.aueb.cf.expensesApp.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +27,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,16 +39,47 @@ public class TransactionService {
     private final Mapper mapper;
     private  final CategoryRepository categoryRepository;
 
+    private static final Logger log = LoggerFactory.getLogger(TransactionService.class);
+
     @Transactional
     public TransactionReadOnlyDTO saveTransaction(TransactionInsertDTO transactionInsertDTO) {
 
-//        if (transactionRepository.findByIdAndIsDeletedFalse().isPresent()) {
-//            throw new AppException(ErrorCode.ENTITY_ALREADY_EXISTS,  "Transaction already exists!");
-//        }
+        log.info("Saving transaction: ", transactionInsertDTO);
+
+        CategoryReadOnlyDTO categoryDTO = transactionInsertDTO.getCategoryReadOnlyDTO();
+
+        if (transactionInsertDTO.getCategoryReadOnlyDTO() == null ||
+                transactionInsertDTO.getCategoryReadOnlyDTO().getCategoryType() == null) {
+            throw new AppException(ErrorCode.ENTITY_INVALID_ARGUMENT_EXCEPTION, "Category information is missing.");
+        }
+
+        CategoryType type = categoryDTO.getCategoryType();
+        String subcategory = categoryDTO.getSubcategory();
+        if (!type.getSubcategories().contains(subcategory)) {
+            throw new AppException(ErrorCode.ENTITY_INVALID_ARGUMENT_EXCEPTION, "Invalid subcategory for the given category type.");
+        }
+        log.info("CategoryType: {}", type);
+        log.info("Subcategory: {}", subcategory);
+
+//        CategoryType type = transactionInsertDTO.getCategoryReadOnlyDTO().getCategoryType();
+//        String subcategory = transactionInsertDTO.getCategoryReadOnlyDTO().getSubcategory();
+
+        Optional<Category> optionalCategory = categoryRepository
+                .findByTypeAndSubcategory(type, subcategory);
+
+        Category category;
+        if (optionalCategory.isPresent()) {
+            category = optionalCategory.get();
+        } else {
+            // If not found, create a new category
+            category = new Category();
+            category.setType(type);
+            category.setSubcategory(subcategory);
+            categoryRepository.save(category); // Save the new category
+        }
 
         Transaction transaction = mapper.mapToTransactionEntity(transactionInsertDTO);
-        transaction.setAmount(transactionInsertDTO.getAmount());
-        Category category = mapper.mapToCategory(transactionInsertDTO.getCategoryReadOnlyDTO());
+//        transaction.setAmount(transactionInsertDTO.getAmount());
         transaction.setCategory(category);
         transaction.setIsDeleted(false);
 
@@ -113,12 +148,24 @@ public class TransactionService {
 
         Page<Transaction> transactions;
 
-        if(categoryType != null) {
+        if (categoryType != null) {
             List<Category> categories = categoryRepository.findByType(categoryType);
-            transactions = transactionRepository.findByCreatedAtBetweenAndCategoryIn(startOfMonth, endOfMonth, categories, pageable);
-        }else {
+
+            if (!categories.isEmpty()) {
+                transactions = transactionRepository.findByCreatedAtBetweenAndCategoryIn(startOfMonth, endOfMonth, categories, pageable);
+            } else {
+                transactions = Page.empty(pageable); // No transactions for the unknown category type
+            }
+        } else {
             transactions = transactionRepository.findByCreatedAtBetween(startOfMonth, endOfMonth, pageable);
         }
+
+//        if(categoryType != null) {
+//            List<Category> categories = categoryRepository.findByType(categoryType);
+//            transactions = transactionRepository.findByCreatedAtBetweenAndCategoryIn(startOfMonth, endOfMonth, categories, pageable);
+//        }else {
+//            transactions = transactionRepository.findByCreatedAtBetween(startOfMonth, endOfMonth, pageable);
+//        }
         return transactions.map(mapper::mapToTransactionReadOnlyDTO);
     }
 }

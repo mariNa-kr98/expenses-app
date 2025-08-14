@@ -23,6 +23,7 @@ public class Category {
     @Enumerated(EnumType.STRING)
     private CategoryType type;
 
+    private String subcategory;
     private String description;
 
 }

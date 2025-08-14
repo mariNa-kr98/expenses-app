@@ -26,4 +26,9 @@ public enum CategoryType {
                 "subcategories=" + subcategories +
                 '}';
     }
+
+    public boolean hasSubcategory(String subcategory) {
+        return subcategories.contains(subcategory);
+    }
+
 }

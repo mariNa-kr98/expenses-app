@@ -29,7 +29,7 @@ public class TransactionRestController {
 
     @PostMapping("/transactions/save")
     public ResponseEntity<TransactionReadOnlyDTO> saveTransaction
-            (@Valid TransactionInsertDTO transactionInsertDTO, BindingResult bindingResult) {
+            (@Valid @RequestBody TransactionInsertDTO transactionInsertDTO, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
