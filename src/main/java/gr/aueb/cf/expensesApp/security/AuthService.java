@@ -6,7 +6,6 @@ import gr.aueb.cf.expensesApp.dto.AuthenticationRequestDTO;
 import gr.aueb.cf.expensesApp.dto.AuthenticationResponseDTO;
 import gr.aueb.cf.expensesApp.model.User;
 import gr.aueb.cf.expensesApp.repository.UserRepository;
-import gr.aueb.cf.expensesApp.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

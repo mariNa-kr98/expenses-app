@@ -1,7 +1,10 @@
 package gr.aueb.cf.expensesApp.dto;
 
 import gr.aueb.cf.expensesApp.model.Category;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,9 +16,15 @@ import lombok.Setter;
 @Setter
 public class TransactionInsertDTO {
 
-    @NotEmpty(message = "Amount cannot be empty.")
+    @NotNull(message = "Amount cannot be empty.")
+    @DecimalMin(value = "0.01", message = "Amount must be greater than zero.")
     private Double amount;
 
-    @NotEmpty(message = "Please, choose a category.")
-    private CategoryReadOnlyDTO categoryReadOnlyDTO;
+    @NotNull(message = "Please, choose a category.")
+    private Long categoryId;
+
+    @Size(max = 255)
+    private String notes;
+
+//    private CategoryReadOnlyDTO categoryReadOnlyDTO;
 }

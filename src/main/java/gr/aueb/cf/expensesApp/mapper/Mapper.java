@@ -32,9 +32,10 @@ public class Mapper {
 
         Transaction transaction = new Transaction();
         transaction.setAmount(transactionInsertDTO.getAmount());
+        transaction.setNotes(transactionInsertDTO.getNotes());
 
-        Category category = mapToCategory(transactionInsertDTO.getCategoryReadOnlyDTO());
-        transaction.setCategory(category);
+//        Category category = mapToCategory(transactionInsertDTO.getCategoryReadOnlyDTO());
+//        transaction.setCategory(category);
 
         return transaction;
     }
@@ -46,13 +47,25 @@ public class Mapper {
                 transaction.getIsDeleted(), transaction.getUser(), transaction.getCategory());
     }
 
-    public Category mapToCategory (CategoryReadOnlyDTO categoryReadOnlyDTO) {
+    public Category mapToCategory (CategoryInsertDTO categoryInsertDTO) {
 
         Category category = new Category();
-        CategoryType categoryType = CategoryType.valueOf(categoryReadOnlyDTO.getCategoryType().name());
-        category.setType(categoryType);
-        category.setDescription(String.join(", ", categoryType.getSubcategories()));
+        category.setType(categoryInsertDTO.getCategoryType());
+        category.setLabel(categoryInsertDTO.getLabel());
+
+//        Category category = new Category();
+//        CategoryType categoryType = CategoryType.valueOf(categoryReadOnlyDTO.getCategoryType().name());
+//        category.setType(categoryType);
+//        category.setLabel(String.join(", ", categoryType.getSubcategories()));
 
         return category;
+    }
+
+    public CategoryReadOnlyDTO mapToCategoryReadOnlyDTO(Category category) {
+        CategoryReadOnlyDTO dto = new CategoryReadOnlyDTO();
+        dto.setId(category.getId());
+        dto.setCategoryType(category.getType());
+        dto.setLabel(category.getLabel());
+        return dto;
     }
 }

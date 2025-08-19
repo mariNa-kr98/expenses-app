@@ -23,6 +23,6 @@ public class Category {
     @Enumerated(EnumType.STRING)
     private CategoryType type;
 
-    private String description;
+    private String label;
 
 }

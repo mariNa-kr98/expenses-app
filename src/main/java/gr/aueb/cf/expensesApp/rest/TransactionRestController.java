@@ -13,9 +13,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -29,9 +31,12 @@ public class TransactionRestController {
 
     @PostMapping("/transactions/save")
     public ResponseEntity<TransactionReadOnlyDTO> saveTransaction
-            (@Valid TransactionInsertDTO transactionInsertDTO, BindingResult bindingResult) {
+            (@Valid @RequestBody TransactionInsertDTO transactionInsertDTO, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
+            String errors = bindingResult.getAllErrors().stream()
+                    .map(ObjectError::getDefaultMessage)
+                    .collect(Collectors.joining(", "));
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 

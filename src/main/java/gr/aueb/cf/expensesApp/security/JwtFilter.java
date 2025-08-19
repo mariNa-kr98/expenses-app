@@ -47,11 +47,11 @@ public class JwtFilter extends OncePerRequestFilter {
             try {
                 username = jwtService.extractSubject(jwt);
 //                userRole = jwtService.getStringClaim(jwt, "role");
-                LOGGER.info("Username extracted from jwt: ", username);
+                LOGGER.info("Username extracted from jwt: {}", username);
 
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                    LOGGER.info("Loaded user: ", userDetails.getUsername());
+                    LOGGER.info("Loaded user: {}", userDetails.getUsername());
 
                     if (jwtService.isTokenValid(jwt, userDetails)) {
                         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -61,21 +61,21 @@ public class JwtFilter extends OncePerRequestFilter {
                         );
                         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authToken);
-                        LOGGER.info("Authentication set for user: ", username);
+                        LOGGER.info("Authentication set for user: {}", username);
                     } else {
                         LOGGER.warn("Token is not valid" + request.getRequestURI());
-                        LOGGER.info("Token is invalid for user: ", username);
+                        LOGGER.info("Token is invalid for user: {}", username);
                     }
                 }
             } catch (ExpiredJwtException e) {
-                LOGGER.warn("WARN: Expired token ", e.getMessage());
+                LOGGER.warn("WARN: Expired token {}", e.getMessage());
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 response.setContentType("application/json");
                 String jsonBody = "{\"code\": \"expired_token\", \"message\": \"" + e.getMessage() + "\"}";
                 response.getWriter().write(jsonBody);
                 return;
             } catch (Exception e) {
-                LOGGER.warn("WARN: Something went wrong while parsing JWT ", e.getMessage());
+                LOGGER.warn("WARN: Something went wrong while parsing JWT {}", e.getMessage());
                 response.setStatus(HttpStatus.FORBIDDEN.value());
                 response.setContentType("application/json");
                 String jsonBody = "{\"code\": \"expired_token\", \"message\": \"" + e.getMessage() + "\"}";

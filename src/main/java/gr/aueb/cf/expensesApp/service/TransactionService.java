@@ -10,13 +10,18 @@ import gr.aueb.cf.expensesApp.dto.TransactionUpdateDTO;
 import gr.aueb.cf.expensesApp.mapper.Mapper;
 import gr.aueb.cf.expensesApp.model.Category;
 import gr.aueb.cf.expensesApp.model.Transaction;
+import gr.aueb.cf.expensesApp.model.User;
 import gr.aueb.cf.expensesApp.repository.CategoryRepository;
 import gr.aueb.cf.expensesApp.repository.TransactionRepository;
+import gr.aueb.cf.expensesApp.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,18 +39,24 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final Mapper mapper;
     private  final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public TransactionReadOnlyDTO saveTransaction(TransactionInsertDTO transactionInsertDTO) {
 
-//        if (transactionRepository.findByIdAndIsDeletedFalse().isPresent()) {
-//            throw new AppException(ErrorCode.ENTITY_ALREADY_EXISTS,  "Transaction already exists!");
-//        }
+        Category category = categoryRepository.findById(transactionInsertDTO.getCategoryId())
+                .orElseThrow(() -> new EntityNotFoundException("Category not found"));
 
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
         Transaction transaction = mapper.mapToTransactionEntity(transactionInsertDTO);
         transaction.setAmount(transactionInsertDTO.getAmount());
-        Category category = mapper.mapToCategory(transactionInsertDTO.getCategoryReadOnlyDTO());
+        transaction.setUser(user);
         transaction.setCategory(category);
+        transaction.setCreatedAt(LocalDateTime.now());
+        transaction.setUpdatedAt(LocalDateTime.now());
         transaction.setIsDeleted(false);
 
         Transaction savedTransaction = transactionRepository.save(transaction);

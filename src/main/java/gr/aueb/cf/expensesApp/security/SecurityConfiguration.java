@@ -1,9 +1,9 @@
 package gr.aueb.cf.expensesApp.security;
 
-import gr.aueb.cf.expensesApp.core.enums.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -30,6 +30,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
+    @Lazy
     private final JwtFilter jwtFilter;
     private final UserDetailsService userDetailsService;
 
@@ -42,10 +43,12 @@ public class SecurityConfiguration {
                 .exceptionHandling(exceptions -> exceptions.accessDeniedHandler(myCustomAccessDeniedHandler()))
                 .authorizeHttpRequests(req -> req
                         .requestMatchers("/api/transactions/save").permitAll()
-                        .requestMatchers("/api/transactions/modify/{id}").permitAll()
-                        .requestMatchers("/api/transactions/delete/{id}").permitAll()
-                        .requestMatchers("/api/transactions/month/paginated").permitAll()
-                        .requestMatchers("/api/transactions/category/paginated").permitAll()
+                        .requestMatchers("/api/transactions/modify/{id}").authenticated()
+                        .requestMatchers("/api/transactions/delete/{id}").authenticated()
+                        .requestMatchers("/api/transactions/month/paginated").authenticated()
+                        .requestMatchers("/api/transactions/category/paginated").authenticated()
+                                .requestMatchers("/api/categories/save").hasRole("ADMIN")
+                                .requestMatchers("/api/categories/**").authenticated()
                         .requestMatchers("/api/users/save").permitAll()
                                 .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/users/delete/{id}").hasAuthority("ROLE_ADMIN")

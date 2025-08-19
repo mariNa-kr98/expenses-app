@@ -18,11 +18,11 @@ public class CategoryService implements ICategoryService{
         this.categoryRepository = categoryRepository;
     }
 
-    @Override
-    public Category findByDescription(String description) {
-        return categoryRepository.findByDescription(description)
-                .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND_EXCEPTION, "Description not found."));
-    }
+//    @Override
+//    public Category findByDescription(String description) {
+//        return categoryRepository.findByDescription(description)
+//                .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND_EXCEPTION, "Description not found."));
+//    }
 
     @Override
     public List<Category> findByType(CategoryType type) {
