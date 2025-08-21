@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -66,35 +67,61 @@ public class TransactionService {
 
     @Transactional
     public Optional<Transaction> modifyTransaction
-            (Long transactionId, Transaction updatedTransaction){
+            (Long transactionId, Long userId,TransactionUpdateDTO dto){
 
-        Optional<Transaction> optionalTransaction = transactionRepository.findById(transactionId);
-
-        if (optionalTransaction.isEmpty()) {
-            throw new AppException(ErrorCode.ENTITY_NOT_FOUND_EXCEPTION, "Transaction not found.");
-        }
-
-        return optionalTransaction.map(transaction ->
-                    {transaction.setAmount(updatedTransaction.getAmount());
-                    transaction.setCategory(updatedTransaction.getCategory());
-         return transactionRepository.save(transaction);
-                 });
-    }
-
-    @Transactional
-    public void deleteTransaction(Long transactionId){
-
-        Optional<Transaction> optionalTransaction = transactionRepository.findById(transactionId);
+        Optional<Transaction> optionalTransaction = transactionRepository.findByIdAndUserIdAndIsDeletedFalse(transactionId, userId);
 
         if (optionalTransaction.isEmpty()) {
             throw new AppException(ErrorCode.ENTITY_NOT_FOUND_EXCEPTION, "Transaction not found.");
         }
 
-        transactionRepository.deleteById(transactionId);
+        return optionalTransaction.map(transaction ->{
+                    if (dto.getAmount() != null) {
+                        transaction.setAmount(dto.getAmount());
+                    }
+                    if(dto.getCategoryId() != null){
+                        Category category = categoryRepository.findById(dto.getCategoryId())
+                                .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_FOUND_EXCEPTION, "Category not found."));
+                        transaction.setCategory(category);
+                    }
+                    if (dto.getIsDeleted() !=null) {
+                        transaction.setIsDeleted(dto.getIsDeleted());
+                    }
+                    if (dto.getNotes() != null) {
+                        transaction.setNotes(dto.getNotes());
+                    }
+                    transaction.setUpdatedAt(LocalDateTime.now());
+                    return transactionRepository.save(transaction);
+        });
     }
 
     @Transactional
-    public Page<TransactionReadOnlyDTO> getPaginatedTransactions (int page, int size, int month, int year) {
+    public String deleteTransaction(Long transactionId, Long userId){
+
+        Optional<Transaction> optionalTransaction = transactionRepository.findByIdAndUserIdAndIsDeletedFalse(transactionId, userId);
+
+        if (optionalTransaction.isEmpty()) {
+            throw new AppException(ErrorCode.ENTITY_NOT_FOUND_EXCEPTION, "Transaction not found.");
+        }
+
+        Transaction transaction = optionalTransaction.get();
+        transaction.setIsDeleted(true);
+        transaction.setUpdatedAt(LocalDateTime.now());
+        transactionRepository.save(transaction);
+//        transactionRepository.deleteById(transactionId);
+        return "Transaction with id " + transactionId + " was soft-deleted succesfully.";
+    }
+
+    @Transactional
+    public Page<TransactionReadOnlyDTO> getPaginatedTransactions
+            (Long userId,
+             int page,
+             int size,
+             int month,
+             int year,
+             List<Long> categoryIds,
+             @Nullable Long categoryId,
+             @Nullable CategoryType categoryType) {
 
         String defaultSort = "id";
         Pageable pageable = PageRequest.of(page, size, Sort.by(defaultSort).ascending());
@@ -105,31 +132,45 @@ public class TransactionService {
         LocalDate lastDay = startDate.with(TemporalAdjusters.lastDayOfMonth());
         LocalDateTime endOfMonth = lastDay.atTime(LocalTime.MAX);
 
-        return transactionRepository
-                .findByCreatedAtBetween(startOfMonth, endOfMonth, pageable)
-                .map(mapper::mapToTransactionReadOnlyDTO);
-    }
+        Page<Transaction> transactionsPage;
 
-    @Transactional
-    public Page<TransactionReadOnlyDTO> getPaginatedTransactionsByCategory
-            (int page, int size, int month, int year, CategoryType categoryType) {
-
-        String defaultSort = "id";
-        Pageable pageable = PageRequest.of(page, size, Sort.by(defaultSort).ascending());
-
-        LocalDate startDate = LocalDate.of(year, month, 1);
-        LocalDateTime startOfMonth = startDate.atStartOfDay();
-        LocalDate lastDay = startDate.with(TemporalAdjusters.lastDayOfMonth());
-        LocalDateTime endOfMonth = lastDay.atTime(LocalTime.MAX);
-
-        Page<Transaction> transactions;
-
-        if(categoryType != null) {
-            List<Category> categories = categoryRepository.findByType(categoryType);
-            transactions = transactionRepository.findByCreatedAtBetweenAndCategoryIn(startOfMonth, endOfMonth, categories, pageable);
+        if (categoryId != null) {
+            transactionsPage = transactionRepository
+                    .findByUserIdAndCreatedAtBetweenAndCategoryIdAndIsDeletedFalse(userId, startOfMonth, endOfMonth, categoryId, pageable);
+        } else if (categoryType != null) {
+            transactionsPage = transactionRepository
+                    .findByCreatedAtBetweenAndCategory_TypeAndIsDeletedFalse(userId, startOfMonth, endOfMonth, categoryType, pageable);
+        }else if (categoryIds != null){
+            transactionsPage = transactionRepository
+                    .findByUserIdAndCreatedAtBetweenAndCategoryIdInAndIsDeletedFalse(userId, startOfMonth, endOfMonth, categoryIds, pageable);
         }else {
-            transactions = transactionRepository.findByCreatedAtBetween(startOfMonth, endOfMonth, pageable);
+            transactionsPage = transactionRepository
+                    .findByUserIdAndCreatedAtBetweenAndIsDeletedFalse(userId, startOfMonth, endOfMonth, pageable);
         }
-        return transactions.map(mapper::mapToTransactionReadOnlyDTO);
+
+        return transactionsPage.map(mapper::mapToTransactionReadOnlyDTO);
     }
+
+//    @Transactional
+//    public Page<TransactionReadOnlyDTO> getPaginatedTransactionsByCategory
+//            (int page, int size, int month, int year, CategoryType categoryType) {
+//
+//        String defaultSort = "id";
+//        Pageable pageable = PageRequest.of(page, size, Sort.by(defaultSort).ascending());
+//
+//        LocalDate startDate = LocalDate.of(year, month, 1);
+//        LocalDateTime startOfMonth = startDate.atStartOfDay();
+//        LocalDate lastDay = startDate.with(TemporalAdjusters.lastDayOfMonth());
+//        LocalDateTime endOfMonth = lastDay.atTime(LocalTime.MAX);
+//
+//        Page<Transaction> transactions;
+//
+//        if(categoryType != null) {
+//            List<Category> categories = categoryRepository.findByType(categoryType);
+//            transactions = transactionRepository.findByCreatedAtBetweenAndCategoryInAndIsDeletedFalse(startOfMonth, endOfMonth, categories, pageable);
+//        }else {
+//            transactions = transactionRepository.findByCreatedAtBetweenAndIsDeletedFalse(startOfMonth, endOfMonth, pageable);
+//        }
+//        return transactions.map(mapper::mapToTransactionReadOnlyDTO);
+//    }
 }

@@ -40,6 +40,18 @@ public class Mapper {
         return transaction;
     }
 
+//    public Transaction mapToTransactionEntity(TransactionUpdateDTO dto) {
+//        Transaction transaction = new Transaction();
+//
+//        transaction.setId(dto.getId());
+//        transaction.setAmount(dto.getAmount());
+//        transaction.setIsDeleted(dto.getIsDeleted());
+//        transaction.setNotes(dto.getNotes());
+//
+//        return transaction;
+//    }
+
+
     public TransactionReadOnlyDTO mapToTransactionReadOnlyDTO(Transaction transaction){
 
         return new TransactionReadOnlyDTO(transaction.getId(), transaction.getAmount(),

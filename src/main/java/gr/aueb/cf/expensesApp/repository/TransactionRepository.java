@@ -1,5 +1,6 @@
 package gr.aueb.cf.expensesApp.repository;
 
+import gr.aueb.cf.expensesApp.core.enums.CategoryType;
 import gr.aueb.cf.expensesApp.model.Category;
 import gr.aueb.cf.expensesApp.model.Transaction;
 import org.springframework.data.domain.Page;
@@ -14,10 +15,31 @@ import java.util.Optional;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    Page<Transaction> findByCreatedAtBetweenAndCategoryIn
-            (LocalDateTime start, LocalDateTime end, List<Category> categories, Pageable pageable);
-    Page<Transaction> findByCreatedAtBetween
-            (LocalDateTime start, LocalDateTime end, Pageable pageable);
-//    Optional<Transaction> findByIdAndIsDeletedFalse(Long id);
-    //    List<Transaction> findByAmountGreaterThan(Double amount);
+    Page<Transaction> findByUserIdAndCreatedAtBetweenAndCategoryIdInAndIsDeletedFalse
+            (Long userId,
+             LocalDateTime start,
+             LocalDateTime end,
+             List<Long> categoryIds,
+             Pageable pageable);
+    Page<Transaction> findByUserIdAndCreatedAtBetweenAndIsDeletedFalse
+            (Long userId,
+             LocalDateTime start,
+             LocalDateTime end,
+             Pageable pageable);
+    Page<Transaction> findByCreatedAtBetweenAndCategory_TypeAndIsDeletedFalse(
+            Long userId,
+            LocalDateTime start,
+            LocalDateTime end,
+            CategoryType categoryType,
+            Pageable pageable
+    );
+    Page<Transaction> findByUserIdAndCreatedAtBetweenAndCategoryIdAndIsDeletedFalse(
+            Long userId,
+            LocalDateTime start,
+            LocalDateTime end,
+            Long categoryId,
+            Pageable pageable
+    );
+    Optional<Transaction> findByIdAndUserIdAndIsDeletedFalse(Long id, Long userId);
+
 }
