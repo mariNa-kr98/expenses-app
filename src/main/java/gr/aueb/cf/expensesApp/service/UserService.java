@@ -41,6 +41,15 @@ public class UserService {
         return mapper.mapToUserReadOnlyDTO(savedUser);
     }
 
+    public UserReadOnlyDTO registerAsAdmin(UserInsertDTO dto) {
+        User user = mapper.mapToUserEntity(dto);
+        user.setRole(Role.ADMIN); // ✅ Set admin role explicitly
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        return mapper.mapToUserReadOnlyDTO(userRepository.save(user));
+    }
+
+
 
     public User deleteUser(Long userId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

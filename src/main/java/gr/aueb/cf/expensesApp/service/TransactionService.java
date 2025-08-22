@@ -16,6 +16,7 @@ import gr.aueb.cf.expensesApp.repository.TransactionRepository;
 import gr.aueb.cf.expensesApp.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -108,7 +109,6 @@ public class TransactionService {
         transaction.setIsDeleted(true);
         transaction.setUpdatedAt(LocalDateTime.now());
         transactionRepository.save(transaction);
-//        transactionRepository.deleteById(transactionId);
         return "Transaction with id " + transactionId + " was soft-deleted succesfully.";
     }
 
@@ -139,7 +139,7 @@ public class TransactionService {
                     .findByUserIdAndCreatedAtBetweenAndCategoryIdAndIsDeletedFalse(userId, startOfMonth, endOfMonth, categoryId, pageable);
         } else if (categoryType != null) {
             transactionsPage = transactionRepository
-                    .findByCreatedAtBetweenAndCategory_TypeAndIsDeletedFalse(userId, startOfMonth, endOfMonth, categoryType, pageable);
+                    .findByUserIdAndCreatedAtBetweenAndCategory_TypeAndIsDeletedFalse(userId, startOfMonth, endOfMonth, categoryType, pageable);
         }else if (categoryIds != null){
             transactionsPage = transactionRepository
                     .findByUserIdAndCreatedAtBetweenAndCategoryIdInAndIsDeletedFalse(userId, startOfMonth, endOfMonth, categoryIds, pageable);
@@ -150,27 +150,4 @@ public class TransactionService {
 
         return transactionsPage.map(mapper::mapToTransactionReadOnlyDTO);
     }
-
-//    @Transactional
-//    public Page<TransactionReadOnlyDTO> getPaginatedTransactionsByCategory
-//            (int page, int size, int month, int year, CategoryType categoryType) {
-//
-//        String defaultSort = "id";
-//        Pageable pageable = PageRequest.of(page, size, Sort.by(defaultSort).ascending());
-//
-//        LocalDate startDate = LocalDate.of(year, month, 1);
-//        LocalDateTime startOfMonth = startDate.atStartOfDay();
-//        LocalDate lastDay = startDate.with(TemporalAdjusters.lastDayOfMonth());
-//        LocalDateTime endOfMonth = lastDay.atTime(LocalTime.MAX);
-//
-//        Page<Transaction> transactions;
-//
-//        if(categoryType != null) {
-//            List<Category> categories = categoryRepository.findByType(categoryType);
-//            transactions = transactionRepository.findByCreatedAtBetweenAndCategoryInAndIsDeletedFalse(startOfMonth, endOfMonth, categories, pageable);
-//        }else {
-//            transactions = transactionRepository.findByCreatedAtBetweenAndIsDeletedFalse(startOfMonth, endOfMonth, pageable);
-//        }
-//        return transactions.map(mapper::mapToTransactionReadOnlyDTO);
-//    }
 }

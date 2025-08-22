@@ -22,6 +22,6 @@ public class TransactionReadOnlyDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean isDeleted;
-    private User user;
+    private UserReadOnlyDTO user;
     private Category category;
 }

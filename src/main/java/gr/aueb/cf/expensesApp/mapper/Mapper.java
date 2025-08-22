@@ -34,9 +34,6 @@ public class Mapper {
         transaction.setAmount(transactionInsertDTO.getAmount());
         transaction.setNotes(transactionInsertDTO.getNotes());
 
-//        Category category = mapToCategory(transactionInsertDTO.getCategoryReadOnlyDTO());
-//        transaction.setCategory(category);
-
         return transaction;
     }
 
@@ -54,9 +51,11 @@ public class Mapper {
 
     public TransactionReadOnlyDTO mapToTransactionReadOnlyDTO(Transaction transaction){
 
+        UserReadOnlyDTO userReadOnlyDTO = mapToUserReadOnlyDTO(transaction.getUser());
+
         return new TransactionReadOnlyDTO(transaction.getId(), transaction.getAmount(),
                 transaction.getCreatedAt(), transaction.getUpdatedAt(),
-                transaction.getIsDeleted(), transaction.getUser(), transaction.getCategory());
+                transaction.getIsDeleted(), userReadOnlyDTO, transaction.getCategory());
     }
 
     public Category mapToCategory (CategoryInsertDTO categoryInsertDTO) {
@@ -64,11 +63,6 @@ public class Mapper {
         Category category = new Category();
         category.setType(categoryInsertDTO.getCategoryType());
         category.setLabel(categoryInsertDTO.getLabel());
-
-//        Category category = new Category();
-//        CategoryType categoryType = CategoryType.valueOf(categoryReadOnlyDTO.getCategoryType().name());
-//        category.setType(categoryType);
-//        category.setLabel(String.join(", ", categoryType.getSubcategories()));
 
         return category;
     }

@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +18,7 @@ public class UserRestController {
 
     private final UserService userService;
 
+    //public access
     @PostMapping("/users/save")
     public ResponseEntity<UserReadOnlyDTO> saveUser
             (@Valid @RequestBody UserInsertDTO userInsertDTO, BindingResult bindingResult) {
@@ -34,6 +36,17 @@ public class UserRestController {
         return new ResponseEntity<>(userReadOnlyDTO, HttpStatus.OK);
     }
 
+    //admin access
+    @PostMapping("/admins/save")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserReadOnlyDTO> saveAdmin(@Valid @RequestBody UserInsertDTO dto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) return ResponseEntity.badRequest().build();
+
+        UserReadOnlyDTO user = userService.registerAsAdmin(dto);
+        return ResponseEntity.ok(user);
+    }
+
+    //admin access
     @DeleteMapping("/users/delete/{id}")
     public ResponseEntity<UserReadOnlyDTO> deleteUser(@PathVariable("id") Long userId){
 

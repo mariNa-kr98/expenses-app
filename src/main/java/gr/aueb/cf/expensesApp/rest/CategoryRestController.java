@@ -5,6 +5,7 @@ import gr.aueb.cf.expensesApp.dto.CategoryReadOnlyDTO;
 import gr.aueb.cf.expensesApp.mapper.Mapper;
 import gr.aueb.cf.expensesApp.model.Category;
 import gr.aueb.cf.expensesApp.repository.CategoryRepository;
+import gr.aueb.cf.expensesApp.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,6 +20,7 @@ public class CategoryRestController {
 
     private final CategoryRepository categoryRepository;
     private final Mapper mapper;
+    private final CategoryService categoryService;
 
     @GetMapping
     public ResponseEntity<List<CategoryReadOnlyDTO>> getAllCategories(){
@@ -44,4 +46,12 @@ public class CategoryRestController {
         Category saved = categoryRepository.save(category);
         return ResponseEntity.ok(mapper.mapToCategoryReadOnlyDTO(saved));
     }
+
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
+        categoryService.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

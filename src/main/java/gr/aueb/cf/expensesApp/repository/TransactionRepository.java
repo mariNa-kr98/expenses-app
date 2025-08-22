@@ -6,7 +6,11 @@ import gr.aueb.cf.expensesApp.model.Transaction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,7 +30,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
              LocalDateTime start,
              LocalDateTime end,
              Pageable pageable);
-    Page<Transaction> findByCreatedAtBetweenAndCategory_TypeAndIsDeletedFalse(
+    Page<Transaction> findByUserIdAndCreatedAtBetweenAndCategory_TypeAndIsDeletedFalse(
             Long userId,
             LocalDateTime start,
             LocalDateTime end,
@@ -42,4 +46,8 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     );
     Optional<Transaction> findByIdAndUserIdAndIsDeletedFalse(Long id, Long userId);
 
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Transaction t WHERE t.isDeleted = true AND t.updatedAt < :cleanDay")
+    void deleteSoftDeletedTransactions(@Param("cleanDay") LocalDateTime cleanDay);
 }
