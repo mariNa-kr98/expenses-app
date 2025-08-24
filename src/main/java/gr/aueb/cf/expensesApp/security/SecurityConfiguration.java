@@ -66,7 +66,7 @@ public class SecurityConfiguration {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedOrigins(List.of("https://coding-factory.expenses-app.gr",
-                "https://test-coding-factory.expenses-app.gr", "http://localhost:4200", "http://localhost:8080/"));
+                "https://test-coding-factory.expenses-app.gr", "http://localhost:4200", "http://localhost:8080"));
         corsConfiguration.setAllowedMethods(List.of("*"));
         corsConfiguration.setAllowedHeaders(List.of("*"));
         corsConfiguration.setAllowCredentials(true);

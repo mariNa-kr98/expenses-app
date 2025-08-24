@@ -1,5 +1,6 @@
 package gr.aueb.cf.expensesApp.rest;
 
+import gr.aueb.cf.expensesApp.core.enums.CategoryType;
 import gr.aueb.cf.expensesApp.dto.CategoryInsertDTO;
 import gr.aueb.cf.expensesApp.dto.CategoryReadOnlyDTO;
 import gr.aueb.cf.expensesApp.mapper.Mapper;
@@ -11,7 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/categories")
@@ -37,6 +40,13 @@ public class CategoryRestController {
         }).toList();
 
         return ResponseEntity.ok(categoryDTOS);
+    }
+
+    @GetMapping("/types")
+    public List<String> getCategoryTypes() {
+        return Arrays.stream(CategoryType.values())
+                .map(Enum::name)
+                .collect(Collectors.toList());
     }
 
     @PostMapping("/save")
