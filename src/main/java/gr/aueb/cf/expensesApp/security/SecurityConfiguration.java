@@ -53,7 +53,7 @@ public class SecurityConfiguration {
                                 .requestMatchers("/api/admins/save").hasRole("ADMIN")
                                 .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/users/delete/{id}").hasAuthority("ROLE_ADMIN")
-//                        .requestMatchers("/**").permitAll()
+                        .requestMatchers("/**").permitAll()
                 )
                 .sessionManagement((session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)))
                 .authenticationProvider(authenticationProvider())
@@ -66,8 +66,8 @@ public class SecurityConfiguration {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedOrigins(List.of("https://coding-factory.expenses-app.gr",
-                "https://test-coding-factory.expenses-app.gr", "http://localhost:4200", "http://localhost:8080"));
-        corsConfiguration.setAllowedMethods(List.of("*"));
+                "https://test-coding-factory.expenses-app.gr", "http://localhost:4200"));
+        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         corsConfiguration.setAllowedHeaders(List.of("*"));
         corsConfiguration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

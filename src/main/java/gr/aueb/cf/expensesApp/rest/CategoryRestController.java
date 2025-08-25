@@ -49,6 +49,23 @@ public class CategoryRestController {
                 .collect(Collectors.toList());
     }
 
+    @GetMapping("/by-type")
+    public ResponseEntity<List<CategoryReadOnlyDTO>> getCategoriesByType(@RequestParam("type") String type) {
+        List<Category> categories = categoryRepository.findByType(CategoryType.valueOf(type));
+
+        List<CategoryReadOnlyDTO> dtos = categories.stream()
+                .map(category -> {
+                    CategoryReadOnlyDTO dto = new CategoryReadOnlyDTO();
+                    dto.setId(category.getId());
+                    dto.setCategoryType(category.getType());
+                    dto.setLabel(category.getLabel());
+                    return dto;
+                }).toList();
+
+        return ResponseEntity.ok(dtos);
+    }
+
+
     @PostMapping("/save")
     @PreAuthorize("hasRole('ADMIN')") // Only admins can insert
     public ResponseEntity<CategoryReadOnlyDTO> saveCategory(@RequestBody CategoryInsertDTO dto) {

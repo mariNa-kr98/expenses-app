@@ -96,6 +96,9 @@ public class TransactionRestController {
              @RequestParam(required = false) Long categoryId,
              @RequestParam(required = false) CategoryType categoryType) {
 
+        if (year <= 0 || month <= 0 || month > 12) {
+            return ResponseEntity.badRequest().build();
+        }
         Long userId = getCurrentUserId();
 
         Page<TransactionReadOnlyDTO> transactionsPage = transactionService
