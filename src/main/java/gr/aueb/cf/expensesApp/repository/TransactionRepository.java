@@ -19,32 +19,32 @@ import java.util.Optional;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    Page<Transaction> findByUserIdAndCreatedAtBetweenAndCategoryIdInAndIsDeletedFalse
+    Page<Transaction> findByUserIdAndMonthAndYearAndCategoryIdInAndIsDeletedFalse
             (Long userId,
-             LocalDateTime start,
-             LocalDateTime end,
-             List<Long> categoryIds,
+             Integer month,
+             Integer year,
+             Long categoryId,
              Pageable pageable);
-    Page<Transaction> findByUserIdAndCreatedAtBetweenAndIsDeletedFalse
+    Page<Transaction> findByUserIdAndMonthAndYearAndIsDeletedFalse
             (Long userId,
-             LocalDateTime start,
-             LocalDateTime end,
+             Integer month,
+             Integer year,
              Pageable pageable);
-    Page<Transaction> findByUserIdAndCreatedAtBetweenAndCategory_TypeAndIsDeletedFalse(
+    Page<Transaction> findByUserIdAndMonthAndYearAndCategory_TypeAndIsDeletedFalse(
             Long userId,
-            LocalDateTime start,
-            LocalDateTime end,
+            Integer month,
+            Integer year,
             CategoryType categoryType,
             Pageable pageable
     );
-    Page<Transaction> findByUserIdAndCreatedAtBetweenAndCategoryIdAndIsDeletedFalse(
-            Long userId,
-            LocalDateTime start,
-            LocalDateTime end,
-            Long categoryId,
-            Pageable pageable
-    );
     Optional<Transaction> findByIdAndUserIdAndIsDeletedFalse(Long id, Long userId);
+    Page<Transaction> findByUserIdAndMonthAndYearAndCategoryIdAndIsDeletedFalse(
+            Long userId,
+            Integer month,
+            Long categoryId,
+            Integer year,
+            Pageable pageable);
+
 
     @Modifying
     @Transactional

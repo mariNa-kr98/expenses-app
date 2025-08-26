@@ -26,5 +26,9 @@ public class TransactionInsertDTO {
     @Size(max = 255)
     private String notes;
 
-//    private CategoryReadOnlyDTO categoryReadOnlyDTO;
+    @NotNull(message = "Please, choose a month.")
+    private Integer month;
+
+    @NotNull(message = "Please, choose a year.")
+    private Integer year;
 }

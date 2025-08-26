@@ -23,4 +23,7 @@ public class TransactionUpdateDTO {
 
     @Size(max = 255, message = "Notes cannot exceed 255 characters.")
     private String notes;
+
+    private Integer month;
+    private Integer year;
 }

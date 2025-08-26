@@ -23,6 +23,8 @@ public class Transaction{
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Boolean isDeleted;
+    private Integer month;
+    private Integer year;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

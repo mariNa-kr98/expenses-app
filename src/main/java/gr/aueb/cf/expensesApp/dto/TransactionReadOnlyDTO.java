@@ -21,7 +21,9 @@ public class TransactionReadOnlyDTO {
     private Double amount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private boolean isDeleted;
+    private Boolean isDeleted;
     private UserReadOnlyDTO user;
     private Category category;
+    private Integer month;
+    private Integer year;
 }

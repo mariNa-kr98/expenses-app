@@ -53,7 +53,10 @@ public class TransactionService {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
         Transaction transaction = mapper.mapToTransactionEntity(transactionInsertDTO);
+        transaction.setMonth(transactionInsertDTO.getMonth());
+        transaction.setYear(transactionInsertDTO.getYear());
         transaction.setAmount(transactionInsertDTO.getAmount());
         transaction.setUser(user);
         transaction.setCategory(category);
@@ -91,6 +94,12 @@ public class TransactionService {
                     if (dto.getNotes() != null) {
                         transaction.setNotes(dto.getNotes());
                     }
+                    if (dto.getMonth() != null) {
+                        transaction.setMonth(dto.getMonth());
+                    }
+                    if (dto.getYear() != null) {
+                        transaction.setYear(dto.getYear());
+                    }
                     transaction.setUpdatedAt(LocalDateTime.now());
                     return transactionRepository.save(transaction);
         });
@@ -126,26 +135,28 @@ public class TransactionService {
         String defaultSort = "id";
         Pageable pageable = PageRequest.of(page, size, Sort.by(defaultSort).ascending());
 
-        LocalDate startDate = LocalDate.of(year, month, 1);
-        LocalDateTime startOfMonth = startDate.atStartOfDay();
-
-        LocalDate lastDay = startDate.with(TemporalAdjusters.lastDayOfMonth());
-        LocalDateTime endOfMonth = lastDay.atTime(LocalTime.MAX);
+//        transactionRepository.findByUserIdAndMonthAndYearAndIsDeletedFalse();
+//        LocalDate startDate = LocalDate.of(year, month, 1);
+//        LocalDateTime startOfMonth = startDate.atStartOfDay();
+//
+//        LocalDate lastDay = startDate.with(TemporalAdjusters.lastDayOfMonth());
+//        LocalDateTime endOfMonth = lastDay.atTime(LocalTime.MAX);
 
         Page<Transaction> transactionsPage;
 
         if (categoryId != null) {
             transactionsPage = transactionRepository
-                    .findByUserIdAndCreatedAtBetweenAndCategoryIdAndIsDeletedFalse(userId, startOfMonth, endOfMonth, categoryId, pageable);
+                    .findByUserIdAndMonthAndYearAndCategoryIdAndIsDeletedFalse(userId, month, categoryId, year, pageable);
         } else if (categoryType != null) {
             transactionsPage = transactionRepository
-                    .findByUserIdAndCreatedAtBetweenAndCategory_TypeAndIsDeletedFalse(userId, startOfMonth, endOfMonth, categoryType, pageable);
+                    .findByUserIdAndMonthAndYearAndCategory_TypeAndIsDeletedFalse(
+                            userId, month, year, categoryType, pageable);
         }else if (categoryIds != null){
             transactionsPage = transactionRepository
-                    .findByUserIdAndCreatedAtBetweenAndCategoryIdInAndIsDeletedFalse(userId, startOfMonth, endOfMonth, categoryIds, pageable);
+                    .findByUserIdAndMonthAndYearAndCategoryIdInAndIsDeletedFalse(userId, month, year, categoryId, pageable);
         }else {
             transactionsPage = transactionRepository
-                    .findByUserIdAndCreatedAtBetweenAndIsDeletedFalse(userId, startOfMonth, endOfMonth, pageable);
+                    .findByUserIdAndMonthAndYearAndIsDeletedFalse(userId, month, year, pageable);
         }
 
         return transactionsPage.map(mapper::mapToTransactionReadOnlyDTO);

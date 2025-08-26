@@ -31,23 +31,13 @@ public class Mapper {
     public Transaction mapToTransactionEntity(TransactionInsertDTO transactionInsertDTO) {
 
         Transaction transaction = new Transaction();
+        transaction.setMonth(transactionInsertDTO.getMonth());
+        transaction.setYear(transactionInsertDTO.getYear());
         transaction.setAmount(transactionInsertDTO.getAmount());
         transaction.setNotes(transactionInsertDTO.getNotes());
 
         return transaction;
     }
-
-//    public Transaction mapToTransactionEntity(TransactionUpdateDTO dto) {
-//        Transaction transaction = new Transaction();
-//
-//        transaction.setId(dto.getId());
-//        transaction.setAmount(dto.getAmount());
-//        transaction.setIsDeleted(dto.getIsDeleted());
-//        transaction.setNotes(dto.getNotes());
-//
-//        return transaction;
-//    }
-
 
     public TransactionReadOnlyDTO mapToTransactionReadOnlyDTO(Transaction transaction){
 
@@ -55,7 +45,8 @@ public class Mapper {
 
         return new TransactionReadOnlyDTO(transaction.getId(), transaction.getAmount(),
                 transaction.getCreatedAt(), transaction.getUpdatedAt(),
-                transaction.getIsDeleted(), userReadOnlyDTO, transaction.getCategory());
+                transaction.getIsDeleted(), userReadOnlyDTO, transaction.getCategory(),
+                transaction.getMonth(), transaction.getYear());
     }
 
     public Category mapToCategory (CategoryInsertDTO categoryInsertDTO) {
