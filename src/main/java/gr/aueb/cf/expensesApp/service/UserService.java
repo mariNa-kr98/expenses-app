@@ -16,7 +16,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,13 +45,17 @@ public class UserService {
 
     public UserReadOnlyDTO registerAsAdmin(UserInsertDTO dto) {
         User user = mapper.mapToUserEntity(dto);
-        user.setRole(Role.ADMIN); // ✅ Set admin role explicitly
+        if (dto.getRole() != null) {
+            user.setRole(dto.getRole());  // set role from request
+        } else {
+            user.setRole(Role.USER);  // default to USER if not provided
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+//        user.setRole(Role.ADMIN);
+//        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         return mapper.mapToUserReadOnlyDTO(userRepository.save(user));
     }
-
-
 
     public User deleteUser(Long userId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -61,7 +67,29 @@ public class UserService {
         if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
             throw new AppException(ErrorCode.ENTITY_NOT_AUTHORIZED_EXCEPTION, "Only admins can perform this action!");
         }
+        if (user.getUsername().equals(currentUsername)) {
+            throw new AppException(ErrorCode.ENTITY_NOT_AUTHORIZED_EXCEPTION, "You cannot delete yourself.");
+        }
+
         userRepository.delete(user);
         return user;
     }
+
+    public List<UserReadOnlyDTO> getAllUsers() {
+
+        List<User> users = userRepository.findAll();
+
+        return users.stream()
+                .map(this::convertToReadOnlyDTO)
+                .collect(Collectors.toList());
+    }
+
+    private UserReadOnlyDTO convertToReadOnlyDTO(User user) {
+        return UserReadOnlyDTO.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .role(user.getRole().name())
+                .build();
+    }
+
 }

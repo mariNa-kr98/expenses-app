@@ -1,5 +1,6 @@
 package gr.aueb.cf.expensesApp.dto;
 
+import gr.aueb.cf.expensesApp.core.enums.Role;
 import jakarta.validation.Constraint;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
@@ -22,8 +23,5 @@ public class UserInsertDTO {
     @Size(min = 6, message = "Password must have at least 6 characters")
     private String password;
 
-//    @NotEmpty(message = "Confirm password cannot be empty.")
-//    @Constraint(validatedBy = PasswordMatchValidator.class)
-//    @Size(min = 6, message = "Password must have at least 6 characters")
-//    private String confirmPassword;
+    private Role role;
 }

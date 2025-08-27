@@ -126,38 +126,23 @@ public class TransactionService {
             (Long userId,
              int page,
              int size,
-             int month,
-             int year,
-             List<Long> categoryIds,
+             Integer month,
+             Integer year,
+             boolean includeDeleted,
              @Nullable Long categoryId,
              @Nullable CategoryType categoryType) {
 
         String defaultSort = "id";
         Pageable pageable = PageRequest.of(page, size, Sort.by(defaultSort).ascending());
 
-//        transactionRepository.findByUserIdAndMonthAndYearAndIsDeletedFalse();
-//        LocalDate startDate = LocalDate.of(year, month, 1);
-//        LocalDateTime startOfMonth = startDate.atStartOfDay();
-//
-//        LocalDate lastDay = startDate.with(TemporalAdjusters.lastDayOfMonth());
-//        LocalDateTime endOfMonth = lastDay.atTime(LocalTime.MAX);
-
-        Page<Transaction> transactionsPage;
-
-        if (categoryId != null) {
-            transactionsPage = transactionRepository
-                    .findByUserIdAndMonthAndYearAndCategoryIdAndIsDeletedFalse(userId, month, categoryId, year, pageable);
-        } else if (categoryType != null) {
-            transactionsPage = transactionRepository
-                    .findByUserIdAndMonthAndYearAndCategory_TypeAndIsDeletedFalse(
-                            userId, month, year, categoryType, pageable);
-        }else if (categoryIds != null){
-            transactionsPage = transactionRepository
-                    .findByUserIdAndMonthAndYearAndCategoryIdInAndIsDeletedFalse(userId, month, year, categoryId, pageable);
-        }else {
-            transactionsPage = transactionRepository
-                    .findByUserIdAndMonthAndYearAndIsDeletedFalse(userId, month, year, pageable);
-        }
+        Page<Transaction> transactionsPage = transactionRepository.findTransactionsFiltered(
+                userId,
+                month,
+                year,
+                categoryId,
+                categoryType,
+                includeDeleted,
+                pageable);
 
         return transactionsPage.map(mapper::mapToTransactionReadOnlyDTO);
     }

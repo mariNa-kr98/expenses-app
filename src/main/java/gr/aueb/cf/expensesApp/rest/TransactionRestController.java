@@ -92,9 +92,9 @@ public class TransactionRestController {
              @RequestParam(defaultValue = "5") int size,
              @RequestParam int month,
              @RequestParam int year,
-             @RequestParam(required = false) List<Long> categoryIds,
              @RequestParam(required = false) Long categoryId,
-             @RequestParam(required = false) CategoryType categoryType) {
+             @RequestParam(required = false) CategoryType categoryType,
+             @RequestParam(defaultValue = "false") boolean includeDeleted) {
 
         if (year <= 0 || month <= 0 || month > 12) {
             return ResponseEntity.badRequest().build();
@@ -102,7 +102,7 @@ public class TransactionRestController {
         Long userId = getCurrentUserId();
 
         Page<TransactionReadOnlyDTO> transactionsPage = transactionService
-                .getPaginatedTransactions(userId, page, size, month, year, categoryIds, categoryId, categoryType);
+                .getPaginatedTransactions(userId, page, size, month, year, includeDeleted, categoryId, categoryType);
         return ResponseEntity.ok(transactionsPage);
     }
 }

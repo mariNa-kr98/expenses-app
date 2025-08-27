@@ -11,6 +11,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")//convention
 @RequiredArgsConstructor
@@ -37,7 +39,7 @@ public class UserRestController {
     }
 
     //admin access
-    @PostMapping("/admins/save")
+    @PostMapping("/users/admins/save")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserReadOnlyDTO> saveAdmin(@Valid @RequestBody UserInsertDTO dto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) return ResponseEntity.badRequest().build();
@@ -47,12 +49,21 @@ public class UserRestController {
     }
 
     //admin access
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/users/delete/{id}")
-    public ResponseEntity<UserReadOnlyDTO> deleteUser(@PathVariable("id") Long userId){
+    public ResponseEntity<Void> deleteUser(@PathVariable("id") Long userId){
 
             userService.deleteUser(userId);
             return ResponseEntity.noContent().build();
 
     }
+
+    //admin access
+    @GetMapping("/users/getAll")
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<UserReadOnlyDTO> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
 }
 

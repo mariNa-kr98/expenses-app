@@ -1,7 +1,6 @@
 package gr.aueb.cf.expensesApp.repository;
 
 import gr.aueb.cf.expensesApp.core.enums.CategoryType;
-import gr.aueb.cf.expensesApp.model.Category;
 import gr.aueb.cf.expensesApp.model.Transaction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +22,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             (Long userId,
              Integer month,
              Integer year,
-             Long categoryId,
+             List<Long> categoryId,
              Pageable pageable);
     Page<Transaction> findByUserIdAndMonthAndYearAndIsDeletedFalse
             (Long userId,
@@ -45,6 +44,22 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             Integer year,
             Pageable pageable);
 
+    @Query("SELECT t FROM Transaction t WHERE " +
+            "(:userId IS NULL OR t.user.id = :userId) AND " +
+            "(:month IS NULL OR t.month = :month) AND " +
+            "(:year IS NULL OR t.year = :year) AND " +
+            "(:categoryId IS NULL OR t.category.id = :categoryId) AND " +
+            "(:categoryType IS NULL OR t.category.type = :categoryType) AND " +
+            "(:includeDeleted = true OR t.isDeleted = false)")
+    Page<Transaction> findTransactionsFiltered(
+            @Param("userId")Long userId,
+            @Param("month")Integer month,
+            @Param("year")Integer year,
+            @Param("categoryId")Long categoryId,
+            @Param("categoryType")CategoryType categoryType,
+            @Param("includeDeleted")boolean includeDeleted,
+            Pageable pageable
+    );
 
     @Modifying
     @Transactional

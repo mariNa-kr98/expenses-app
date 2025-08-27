@@ -26,4 +26,5 @@ public class TransactionReadOnlyDTO {
     private Category category;
     private Integer month;
     private Integer year;
+    private String notes;
 }
