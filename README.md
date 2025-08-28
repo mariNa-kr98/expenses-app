@@ -4,7 +4,7 @@ and Gradle installed to run, also MySql and Postman for testing APIs.
 
 It can be built and run as follows:
 
-1. git clone https://github.com/mariNa-kr98/expenses-app-frontend.git cd expenses-app-backend
+1. git clone https://github.com/mariNa-kr98/expenses-app-frontend.git cd expenses-app
 2. ./gradlew clean build
 3. ./gradlew bootRun
 
