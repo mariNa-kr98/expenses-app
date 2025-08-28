@@ -18,24 +18,6 @@ import java.util.Optional;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    Page<Transaction> findByUserIdAndMonthAndYearAndCategoryIdInAndIsDeletedFalse
-            (Long userId,
-             Integer month,
-             Integer year,
-             List<Long> categoryId,
-             Pageable pageable);
-    Page<Transaction> findByUserIdAndMonthAndYearAndIsDeletedFalse
-            (Long userId,
-             Integer month,
-             Integer year,
-             Pageable pageable);
-    Page<Transaction> findByUserIdAndMonthAndYearAndCategory_TypeAndIsDeletedFalse(
-            Long userId,
-            Integer month,
-            Integer year,
-            CategoryType categoryType,
-            Pageable pageable
-    );
     Optional<Transaction> findByIdAndUserIdAndIsDeletedFalse(Long id, Long userId);
     Page<Transaction> findByUserIdAndMonthAndYearAndCategoryIdAndIsDeletedFalse(
             Long userId,
@@ -50,7 +32,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             "(:year IS NULL OR t.year = :year) AND " +
             "(:categoryId IS NULL OR t.category.id = :categoryId) AND " +
             "(:categoryType IS NULL OR t.category.type = :categoryType) AND " +
-            "(:includeDeleted = true OR t.isDeleted = false)")
+            "((:includeDeleted = false AND t.isDeleted = false) OR :includeDeleted = true)")
     Page<Transaction> findTransactionsFiltered(
             @Param("userId")Long userId,
             @Param("month")Integer month,

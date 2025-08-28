@@ -103,6 +103,8 @@ public class TransactionRestController {
 
         Page<TransactionReadOnlyDTO> transactionsPage = transactionService
                 .getPaginatedTransactions(userId, page, size, month, year, includeDeleted, categoryId, categoryType);
+        System.out.println("includeDeleted = " + includeDeleted);
+
         return ResponseEntity.ok(transactionsPage);
     }
 }
