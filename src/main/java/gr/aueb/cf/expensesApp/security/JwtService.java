@@ -16,7 +16,6 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    //how to generate a secretKey?
     private String secretKey = "5ce98d378ec88ea09ba8bcd511ef23645f04cc8e70b9134b98723a53c275bbc5";
     private long jwtExpiration = 360000;
 
@@ -75,9 +74,4 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-
-//    private Key getSignInKey() {
-//        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-//        return Keys.hmacShaKeyFor(keyBytes);
-//    }
 }

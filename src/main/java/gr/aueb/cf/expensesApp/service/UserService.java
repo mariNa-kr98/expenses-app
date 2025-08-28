@@ -46,13 +46,11 @@ public class UserService {
     public UserReadOnlyDTO registerAsAdmin(UserInsertDTO dto) {
         User user = mapper.mapToUserEntity(dto);
         if (dto.getRole() != null) {
-            user.setRole(dto.getRole());  // set role from request
+            user.setRole(dto.getRole());
         } else {
-            user.setRole(Role.USER);  // default to USER if not provided
+            user.setRole(Role.USER); 
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-//        user.setRole(Role.ADMIN);
-//        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         return mapper.mapToUserReadOnlyDTO(userRepository.save(user));
     }

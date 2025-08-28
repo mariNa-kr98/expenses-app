@@ -36,7 +36,6 @@ public class JwtFilter extends OncePerRequestFilter {
             String authHeader = request.getHeader("Authorization");
             String jwt;
             String username;
-//            String userRole;
 
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 filterChain.doFilter(request, response);
@@ -46,7 +45,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
             try {
                 username = jwtService.extractSubject(jwt);
-//                userRole = jwtService.getStringClaim(jwt, "role");
                 LOGGER.info("Username extracted from jwt: {}", username);
 
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

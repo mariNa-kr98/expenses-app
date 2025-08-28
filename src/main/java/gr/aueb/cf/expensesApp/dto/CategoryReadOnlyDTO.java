@@ -16,7 +16,6 @@ public class CategoryReadOnlyDTO {
 
     private Long id;
     private CategoryType categoryType;
-//    private List<String> subcategories;
     private String label;
 
 }
